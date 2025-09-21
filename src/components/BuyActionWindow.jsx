@@ -1,10 +1,7 @@
 import React, { useState, useContext } from "react";
-import { Link } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
 import GeneralContext from "./GeneralContext";
-
 import "./BuyActionWindow.css";
 
 const BuyActionWindow = ({ uid }) => {
@@ -12,17 +9,23 @@ const BuyActionWindow = ({ uid }) => {
   const [stockPrice, setStockPrice] = useState(0.0);
 
   const { closeBuyWindow } = useContext(GeneralContext);
+  const navigate = useNavigate();
 
-  const handleBuyClick = () => {
-    axios.post("https://backendzerodha-3xet.onrender.com/newOrder", {
-      name: uid,
-      qty: stockQuantity,
-      price: stockPrice,
-      mode: "BUY",
-    });
+  const handleBuyClick = async () => {
+    try {
+      await axios.post("https://backendzerodha-3xet.onrender.com/newOrder", {
+        name: uid,
+        qty: stockQuantity,
+        price: stockPrice,
+        mode: "BUY",
+      });
 
-    closeBuyWindow();
-    window.location.reload();
+      closeBuyWindow();
+      navigate("/orders"); // Navigate to Orders page after successful buy
+    } catch (error) {
+      console.error("Error placing order:", error);
+      alert("Failed to place order");
+    }
   };
 
   const handleCancelClick = () => {
@@ -60,12 +63,12 @@ const BuyActionWindow = ({ uid }) => {
       <div className="buttons">
         <span>Margin required ₹140.65</span>
         <div>
-          <Link className="btn btn-blue" onClick={handleBuyClick}>
+          <button className="btn btn-blue" onClick={handleBuyClick}>
             Buy
-          </Link>
-          <Link to="" className="btn btn-grey" onClick={handleCancelClick}>
+          </button>
+          <button className="btn btn-grey" onClick={handleCancelClick}>
             Cancel
-          </Link>
+          </button>
         </div>
       </div>
     </div>
